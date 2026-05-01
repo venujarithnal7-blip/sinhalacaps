@@ -7,15 +7,26 @@ export async function GET(req) {
   const stream = new ReadableStream({
     start(controller) {
       const interval = setInterval(() => {
-        const progress = getProgress(id);
-        controller.enqueue(`data: ${progress}\n\n`);
+        try {
+          const progress = getProgress(id);
+          controller.enqueue(`data: ${progress}\n\n`);
 
-        if (progress >= 100) {
+          if (progress >= 100) {
+            clearInterval(interval);
+            deleteProgress(id);
+            try { controller.close(); } catch {}
+          }
+        } catch {
+          // ✅ Stream already closed - just stop
           clearInterval(interval);
-          deleteProgress(id);
-          controller.close();
         }
       }, 300);
+
+      // ✅ Clean up if client disconnects
+      req.signal.addEventListener("abort", () => {
+        clearInterval(interval);
+        try { controller.close(); } catch {}
+      });
     },
   });
 
