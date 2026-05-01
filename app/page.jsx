@@ -160,10 +160,7 @@ async function handleDownloadVideo() {
   const exportId = Date.now().toString();
 
   // ✅ Start listening to progress
-  const evtSource = new EventSource(`/api/export-progress?id=${exportId}`);
-  evtSource.onmessage = (e) => {
-    setExportProgress(Number(e.data));
-  };
+  
 
   try {
     const videoEl = videoRef.current;
@@ -198,7 +195,7 @@ async function handleDownloadVideo() {
     formData.append("video", videoFile);
     formData.append("words", JSON.stringify(adjustedWords));
     formData.append("mode", "pro");
-    formData.append("exportId", exportId); // ✅ send ID
+    
     formData.append(
       "styles",
       JSON.stringify({
@@ -224,7 +221,6 @@ async function handleDownloadVideo() {
       body: formData,
     });
 
-    evtSource.close(); // ✅ stop listening
 
     if (!res.ok) {
       const errorText = await res.text();
@@ -250,13 +246,16 @@ async function handleDownloadVideo() {
     console.error("Download error:", error);
     alert("Export failed. Check terminal error.");
   } finally {
-    evtSource.close();
+    
     setIsDownloading(false);
-    setExportProgress(0);
+   
   }
 }
 
   async function handleGenerateCaptions() {
+
+    
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -493,24 +492,16 @@ function stopTracking() {
              <button
   onClick={handleDownloadVideo}
   disabled={isDownloading}
-  className="rounded-2xl bg-purple-500 px-4 py-2 font-medium text-white hover:bg-purple-400 disabled:opacity-60 flex items-center gap-2 min-w-[160px] justify-center"
+  className="rounded-2xl bg-purple-500 px-4 py-2 font-medium text-white hover:bg-purple-400 disabled:opacity-60 flex items-center gap-2"
 >
   {isDownloading ? (
-    <div className="flex flex-col items-center w-full gap-1">
-      <div className="flex items-center gap-2 text-sm">
-        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-        </svg>
-        {exportProgress < 80 ? `Rendering ${exportProgress}%` : exportProgress < 100 ? "Encoding..." : "Done!"}
-      </div>
-      <div className="w-full bg-purple-800 rounded-full h-1.5">
-        <div
-          className="bg-white h-1.5 rounded-full transition-all duration-300"
-          style={{ width: `${exportProgress}%` }}
-        />
-      </div>
-    </div>
+    <>
+      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+      </svg>
+      Exporting...
+    </>
   ) : (
     "Download Video"
   )}
