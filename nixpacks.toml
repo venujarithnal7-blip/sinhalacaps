@@ -1,11 +1,11 @@
 [phases.setup]
-nixPkgs = ["ffmpeg", "chromium"]
+aptPkgs = ["ffmpeg", "chromium", "chromium-driver"]
 
 [phases.install]
-cmds = ["npm ci", "npx playwright install chromium --with-deps"]
+cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["npm run build"]
 
 [start]
-cmd = "npm run start -- -p $PORT"
+cmd = "npm run start"
