@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { renderFrame } from "@/lib/renderFrame";
-import { setProgress } from "@/lib/progressStore";
+
 
 // ── Runners ───────────────────────────────────────────────────────────────────
 
@@ -65,9 +65,6 @@ export async function POST(req) {
 
     // ─── PRO MODE ────────────────────────────────────────────────
 if (mode === "pro") {
-  const exportId = formData.get("exportId") || "default";
-  setProgress(exportId, 0);
-
   console.log("=== EXPORT DEBUG ===");
   console.log("videoWidth:", styles.videoWidth);
   console.log("videoHeight:", styles.videoHeight);
@@ -98,51 +95,47 @@ if (mode === "pro") {
         const index = i + batchIndex;
 
         const html = `
-  <html>
-    <head>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        @keyframes pop {
-          0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-          60%  { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
-          80%  { transform: translate(-50%, -50%) scale(0.95); }
-          100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
-
-        .caption {
-          animation: pop 0.2s ease-out forwards;
-        }
-      </style>
-    </head>
-    <body style="margin:0;padding:0;background:transparent;overflow:hidden;">
-      <div style="position:relative;width:${vw}px;height:${vh}px;">
-        <div class="caption" style="
-          position:absolute;
-          left:${posX}px;
-          top:${posY}px;
-          font-size:${scaledFont}px;
-          font-weight:900;
-          -webkit-font-smoothing:antialiased;
-          font-synthesis:weight;
-          background:${styles.showBackground
-            ? `${styles.bgColor}${Math.round(styles.bgOpacity * 255).toString(16).padStart(2, '0')}`
-            : 'transparent'};
-          padding:${paddingY}px ${paddingX}px;
-          border-radius:${scaledRadius}px;
-          color:${styles.fontColor};
-          font-family:${styles.fontFamily};
-          text-shadow:${styles.shadow
-            ? `0 0 ${styles.outlineSize * 3}px black, 0 0 ${styles.outlineSize * 6}px black`
-            : 'none'};
-          white-space:nowrap;
-          text-align:center;
-          -webkit-text-stroke:${styles.isBold ? '0.5px ' + styles.fontColor : 'none'};
-        ">${w.text}</div>
-      </div>
-    </body>
-  </html>
-`;
+          <html>
+            <head>
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                @keyframes pop {
+                  0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+                  60%  { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+                  80%  { transform: translate(-50%, -50%) scale(0.95); }
+                  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                }
+                .caption { animation: pop 0.2s ease-out forwards; }
+              </style>
+            </head>
+            <body style="margin:0;padding:0;background:transparent;overflow:hidden;">
+              <div style="position:relative;width:${vw}px;height:${vh}px;">
+                <div class="caption" style="
+                  position:absolute;
+                  left:${posX}px;
+                  top:${posY}px;
+                  font-size:${scaledFont}px;
+                  font-weight:900;
+                  -webkit-font-smoothing:antialiased;
+                  font-synthesis:weight;
+                  background:${styles.showBackground
+                    ? `${styles.bgColor}${Math.round(styles.bgOpacity * 255).toString(16).padStart(2, '0')}`
+                    : 'transparent'};
+                  padding:${paddingY}px ${paddingX}px;
+                  border-radius:${scaledRadius}px;
+                  color:${styles.fontColor};
+                  font-family:${styles.fontFamily};
+                  text-shadow:${styles.shadow
+                    ? `0 0 ${styles.outlineSize * 3}px black, 0 0 ${styles.outlineSize * 6}px black`
+                    : 'none'};
+                  white-space:nowrap;
+                  text-align:center;
+                  -webkit-text-stroke:${styles.isBold ? '0.5px ' + styles.fontColor : 'none'};
+                ">${w.text}</div>
+              </div>
+            </body>
+          </html>
+        `;
 
         const framePath = path.join(framesDir, `frame-${index}.png`);
 
@@ -161,15 +154,8 @@ if (mode === "pro") {
     );
 
     framePaths.push(...batchResults);
-
-    const framesRendered = Math.min(i + BATCH_SIZE, words.length);
-    const renderProgress = Math.round((framesRendered / words.length) * 80);
-    setProgress(exportId, renderProgress);
-    console.log(`Progress: ${renderProgress}%`);
+    console.log(`Batch ${Math.floor(i / BATCH_SIZE) + 1} done`);
   }
-
-  // ✅ Frames done, FFmpeg starting
-  setProgress(exportId, 85);
 
   let filterParts = [];
   let last = "[0:v]";
@@ -177,7 +163,6 @@ if (mode === "pro") {
     const f = framePaths[i];
     const out = `[v${i}]`;
     const scaled = `[scaled${i}]`;
-
     filterParts.push(`[${i + 1}:v]scale=${vw}:${vh}${scaled}`);
     filterParts.push(`${last}${scaled}overlay=0:0:enable='between(t,${f.start},${f.end})'${out}`);
     last = out;
@@ -203,9 +188,6 @@ if (mode === "pro") {
     "-movflags", "+faststart",
     outputPath, "-y",
   ]);
-
-  // ✅ FFmpeg done
-  setProgress(exportId, 100);
 
   const videoBuffer = fs.readFileSync(outputPath);
   return new Response(videoBuffer, {
