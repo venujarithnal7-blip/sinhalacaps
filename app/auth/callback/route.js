@@ -29,5 +29,7 @@ export async function GET(request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.redirect(new URL("/", request.url));
+  // ✅ Use the request URL origin instead of hardcoded localhost
+  const origin = process.env.NEXT_PUBLIC_SITE_URL || requestUrl.origin;
+  return NextResponse.redirect(`${origin}/`);
 }
