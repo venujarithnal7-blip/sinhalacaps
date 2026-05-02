@@ -171,23 +171,21 @@ if (mode === "pro") {
   const filter = filterParts.join(";");
   const inputArgs = framePaths.flatMap((f) => ["-i", f.path]);
 
-  await runFFmpegArgs([
-    "-i", tempVideoPath,
-    ...inputArgs,
-    "-filter_complex", filter,
-    "-map", last,
-    "-map", "0:a",
-    "-c:v", "libx264",
-    "-preset", "slow",
-    "-crf", "16",
-    "-profile:v", "high",
-    "-level", "4.1",
-    "-pix_fmt", "yuv420p",
-    "-c:a", "aac",
-    "-b:a", "192k",
-    "-movflags", "+faststart",
-    outputPath, "-y",
-  ]);
+ await runFFmpegArgs([
+  "-i", tempVideoPath,
+  ...inputArgs,
+  "-filter_complex", filter,
+  "-map", last,
+  "-map", "0:a",
+  "-c:v", "libx264",
+  "-preset", "fast",      // ← change slow to fast (less CPU)
+  "-crf", "18",
+  "-pix_fmt", "yuv420p",  // ← keep this
+  "-c:a", "aac",
+  "-b:a", "128k",
+  "-movflags", "+faststart",
+  outputPath, "-y",
+]);
 
   const videoBuffer = fs.readFileSync(outputPath);
   return new Response(videoBuffer, {
