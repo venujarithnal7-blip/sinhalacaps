@@ -84,7 +84,7 @@ if (mode === "pro") {
   const paddingY = Math.round(8 * (vh / 640));
   const scaledRadius = Math.round((styles.bgRadius || 12) * (vh / 640));
 
-  const BATCH_SIZE = 5;
+  const BATCH_SIZE = 1;
   const framePaths = [];
 
   for (let i = 0; i < words.length; i += BATCH_SIZE) {
