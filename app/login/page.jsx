@@ -66,6 +66,10 @@ async function handleGoogleLogin() {
     provider: "google",
     options: {
       redirectTo: `https://focused-light-production-6257.up.railway.app/auth/callback`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
     },
   });
   if (error) setMessage(error.message);
