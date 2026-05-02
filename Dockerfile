@@ -16,7 +16,13 @@ RUN apt-get update && apt-get install -y \
     libxrandr2 \
     libgbm1 \
     libasound2 \
-    && rm -rf /var/lib/apt/lists/*
+    fonts-noto \
+    fonts-noto-cjk \
+    fonts-noto-color-emoji \
+    fontconfig \
+    && apt-get install -y fonts-noto-extra || true \
+    && rm -rf /var/lib/apt/lists/* \
+    && fc-cache -fv
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/usr/bin
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
@@ -39,6 +45,6 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
 RUN npm run build
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["npm", "run", "start"]
