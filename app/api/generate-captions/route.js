@@ -3,9 +3,6 @@ import fs from "fs";
 import path from "path";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 function runCommand(command) {
   return new Promise((resolve, reject) => {
@@ -138,8 +135,13 @@ function alignFullTextToSegments(fullText, segments) {
 }
 
 export async function POST(req) {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || "placeholder",
+  });
+  
   let tempVideoPath = "";
   let tempAudioPath = "";
+  // rest of your code...
 
   try {
     const formData = await req.formData();
