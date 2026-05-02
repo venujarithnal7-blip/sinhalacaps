@@ -61,11 +61,11 @@ export default function LoginPage() {
     router.push("/");
   }
 
-  async function handleGoogleLogin() {
+async function handleGoogleLogin() {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `https://sinhalacaps-production.up.railway.app/auth/callback`,
+      redirectTo: `https://focused-light-production-6257.up.railway.app/auth/callback`,
     },
   });
   if (error) setMessage(error.message);
