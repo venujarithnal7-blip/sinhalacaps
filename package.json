@@ -8,7 +8,7 @@
   "scripts": {
   "dev": "next dev",
   "build": "apt-get install -y ffmpeg || true && next build",
-  "start": "next start -p ${PORT:-3000}",
+  "start": "next start -p ${PORT:-8000}",
   "lint": "eslint"
 },
   "dependencies": {
