@@ -129,18 +129,22 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,${cleanFontFamily},${scaledFontSize},${primaryColor},&H000000FF,&H00000000,${backColor},${bold},0,0,0,100,100,2,0,${borderStyle},${outlineVal},${shadowVal},2,30,30,30,1
+Style: Default,${cleanFontFamily},${scaledFontSize},${primaryColor},&H000000FF,&H00000000,${backColor},${bold},0,0,0,100,100,2,0,${borderStyle},4,0,2,30,30,30,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 `;
 
   const events = words.map((w) => {
-   const pad = showBackground ? "\u00A0\u00A0\u00A0" : "";
-const bord = showBackground ? `\\bord8` : `\\bord${outlineVal}`;
-const text = `{\\pos(${posX},${posY})\\b1${bord}}${pad}${w.text}${pad}`;
-    return `Dialogue: 0,${formatASSTime(w.start)},${formatASSTime(w.end)},Default,,0,0,0,,${text}`;
-  }).join("\n");
+  const pad = showBackground ? "\u00A0\u00A0\u00A0" : "";
+  
+  // Bold, larger outline, clean shadow
+  const styleOverride = showBackground
+    ? `{\\pos(${posX},${posY})\\b1\\bord12\\shad0\\3c&H000000&\\4c&H000000&}`
+    : `{\\pos(${posX},${posY})\\b1\\bord${Math.max(3, outlineVal * 2)}\\shad1}`;
+
+  return `Dialogue: 0,${formatASSTime(w.start)},${formatASSTime(w.end)},Default,,0,0,0,,${styleOverride}${pad}${w.text}${pad}`;
+}).join("\n");
 
   return header + events + "\n";
 }
