@@ -159,14 +159,14 @@ if (mode === "pro") {
 
   let filterParts = [];
   let last = "[0:v]";
-  for (let i = 0; i < framePaths.length; i++) {
-    const f = framePaths[i];
-    const out = `[v${i}]`;
-    const scaled = `[scaled${i}]`;
-    filterParts.push(`[${i + 1}:v]scale=${vw}:${vh}${scaled}`);
-    filterParts.push(`${last}${scaled}overlay=0:0:enable='between(t,${f.start},${f.end})'${out}`);
-    last = out;
-  }
+for (let i = 0; i < framePaths.length; i++) {
+  const f = framePaths[i];
+  const out = `[v${i}]`;
+  filterParts.push(
+    `${last}[${i + 1}:v]overlay=0:0:enable='between(t,${f.start},${f.end})'${out}`
+  );
+  last = out;
+}
 
   const filter = filterParts.join(";");
   const inputArgs = framePaths.flatMap((f) => ["-i", f.path]);
