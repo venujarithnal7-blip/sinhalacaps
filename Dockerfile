@@ -39,6 +39,6 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
 RUN npm run build
 
-EXPOSE 8000
+EXPOSE 3000
 
 CMD ["npm", "run", "start"]
